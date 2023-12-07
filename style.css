@@ -94,3 +94,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+#rend{
+  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: pixelated;
+  width: 100vw !important;
+  height: 100vh !important;
+}
