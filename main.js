@@ -6,15 +6,22 @@ import './style.css';
 			let container, clock;
 			let camera, scene, renderer;
 
-      const REND_WIDTH = 256;
-      const REND_HEIGHT = 192;
+      const REND_WIDTH = 128;
+      const REND_HEIGHT = 128;
 
 			const api = { state: 'Walking' };
+
+      const tabsDomElement = document.getElementById("tabs");
 
       class SlotData {
         constructor(name){
           this.name = name;
           this.modelPath = null;
+          let newTab = document.createElement("p");
+          newTab.setAttribute("class","tab")
+          newTab.setAttribute("id",this.name);
+          newTab.innerText = this.name;
+          tabsDomElement.appendChild(newTab);
         }
       }
 
@@ -24,8 +31,12 @@ import './style.css';
         LEGS:   new SlotData("LEGS",    null),
         TORSO:  new SlotData("TORSO",   null),
         JACKET: new SlotData("JACKET",  null),
+        NECK:   new SlotData("NECK",    null),
+        FACE:    new SlotData("FACE",   null),
         HAIR:   new SlotData("HAIR",    null),
-        HAT:    new SlotData("HAT",     null)
+        HAT:   new SlotData("HAT",    null),
+        PROP_LEFT_HAND:    new SlotData("PROP_LEFT_HAND",     null),
+        PROP_RIGHT_HAND:    new SlotData("PROP_RIGHT_HAND",   null)        
       }
 
 			init();
@@ -59,18 +70,17 @@ import './style.css';
 
 			function init() {
 
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
+				container = document.getElementById("three");
 
         let ratio = (REND_HEIGHT/REND_WIDTH);
-        let orthographicSize = 2;
+        let orthographicSize = 1.44935064934;
 
 				camera = new THREE.OrthographicCamera( -orthographicSize, orthographicSize, ratio*orthographicSize, ratio * -orthographicSize, 2, 500 );
 				camera.position.set( 0, 2, -5.7 );
-				camera.lookAt( 0, 1, 0 );
+				camera.lookAt( 0, 0.75, 0 );
 
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0xe0e0e0 );
+				scene.background = new THREE.Color(0x000000, 0);
 				scene.fog = new THREE.Fog( 0xe0e0e0, 20, 100 );
 
 				clock = new THREE.Clock();
@@ -89,7 +99,7 @@ import './style.css';
         
 				spawnModelInSlot(Slot.LEGS,'models/gltf/Person.glb');
 
-				renderer = new THREE.WebGLRenderer( { alpha: true } );
+				renderer = new THREE.WebGLRenderer( { alpha: true } );  
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( REND_WIDTH, REND_HEIGHT );
         renderer.domElement.id = "rend";
@@ -102,7 +112,6 @@ import './style.css';
 
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-        spawnModelInSlot(Slot.LEGS,'models/gltf/Nefertiti.glb');
 			}
 
 			//
