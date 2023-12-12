@@ -14,16 +14,7 @@ const api = { state: 'Walking' };
 
 const tabsDomElement = document.getElementById("tabs");
 
-document.getElementById("tempButton").onclick = () => {writeCurrentCanvasFrameIntoSpriteSheetAtCoordinates()};
-
-function writeCurrentCanvasFrameIntoSpriteSheetAtCoordinates (topLeftX,topLeftY){	
-	renderer.domElement.toBlob(async (blob) => {
-		let arr = new Uint8Array(await blob.arrayBuffer());
-		let imgData = decode(arr)
-		console.log(imgData);
-		console.log("write imgData into the position on the big output spritesheet using the given x and y coordinates here")
-	 });
-}
+document.getElementById("tempButton").onclick = () => {rotateFigureYawBy(22.5)};
 
 class SlotData {
     constructor(name){
@@ -38,17 +29,17 @@ class SlotData {
 }
 
 let Slot = {
-    SHOES:  new SlotData("SHOES",   null),
-    SOCKS:  new SlotData("SOCKS",   null),
-    LEGS:   new SlotData("LEGS",    null),
-    TORSO:  new SlotData("TORSO",   null),
-    JACKET: new SlotData("JACKET",  null),
-    NECK:   new SlotData("NECK",    null),
-    FACE:    new SlotData("FACE",   null),
-    HAIR:   new SlotData("HAIR",    null),
-    HAT:   new SlotData("HAT",    null),
-    PROP_LEFT_HAND:    new SlotData("PROP_LEFT_HAND",     null),
-    PROP_RIGHT_HAND:    new SlotData("PROP_RIGHT_HAND",   null)        
+    SHOES:  new SlotData("Shoes",   null),
+    SOCKS:  new SlotData("Socks",   null),
+    LEGS:   new SlotData("Legs",    null),
+    TORSO:  new SlotData("Torso",   null),
+    JACKET: new SlotData("Jacket",  null),
+    NECK:   new SlotData("Neck",    null),
+    FACE:    new SlotData("Face",   null),
+    HAIR:   new SlotData("Hair",    null),
+    HAT:   new SlotData("Hat",    null),
+    PROP_LEFT_HAND:    new SlotData("Left hand",     null),
+    PROP_RIGHT_HAND:    new SlotData("Right hand",   null)        
     }
 
 init();
@@ -66,6 +57,8 @@ function spawnModelInSlot (slot, newModelPath){
         console.log("Slot should be cleared and ready for adding");
         }
         
+	console.log("Something that should be done here is go through the meshes in the newly imported model, and change their material to a toon shader")
+
     console.log("Spawning new model in slot: "+slot.name+"...")
     slot.modelPath = newModelPath;     
 
@@ -132,3 +125,21 @@ function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
 	}
+
+function deg2Rad(deg){
+	return deg * Math.PI/180;
+}
+
+function rotateFigureYawBy(yawChange){
+	console.log(scene.rotation);
+	scene.rotation.y += (deg2Rad(yawChange));
+}
+
+function writeCurrentCanvasFrameIntoSpriteSheetAtCoordinates (topLeftX,topLeftY){	
+	renderer.domElement.toBlob(async (blob) => {
+		let arr = new Uint8Array(await blob.arrayBuffer());
+		let imgData = decode(arr)
+		console.log(imgData);
+		console.log("write imgData into the position on the big output spritesheet using the given x and y coordinates here")
+	 });
+}
