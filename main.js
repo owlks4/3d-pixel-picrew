@@ -16,6 +16,9 @@ const tabsDomElement = document.getElementById("tabs");
 
 document.getElementById("tempButton").onclick = () => {rotateFigureYawBy(22.5)};
 
+document.getElementById("leftButton").onclick = () => {rotateFigureYawBy(-22.5)};
+document.getElementById("rightButton").onclick = () => {rotateFigureYawBy(22.5)};
+
 class SlotData {
     constructor(name){
     	this.name = name;
@@ -35,11 +38,11 @@ let Slot = {
     TORSO:  new SlotData("Torso",   null),
     JACKET: new SlotData("Jacket",  null),
     NECK:   new SlotData("Neck",    null),
-    FACE:    new SlotData("Face",   null),
+    FACE:   new SlotData("Face",   	null),
     HAIR:   new SlotData("Hair",    null),
-    HAT:   new SlotData("Hat",    null),
-    PROP_LEFT_HAND:    new SlotData("Left hand",     null),
-    PROP_RIGHT_HAND:    new SlotData("Right hand",   null)        
+    HAT:   	new SlotData("Hat",    	null),
+    PROP_LEFT_HAND:   new SlotData("Left hand",     null),
+    PROP_RIGHT_HAND:  new SlotData("Right hand",   null)        
     }
 
 init();
@@ -140,6 +143,6 @@ function writeCurrentCanvasFrameIntoSpriteSheetAtCoordinates (topLeftX,topLeftY)
 		let arr = new Uint8Array(await blob.arrayBuffer());
 		let imgData = decode(arr)
 		console.log(imgData);
-		console.log("write imgData into the position on the big output spritesheet using the given x and y coordinates here")
+		console.log("write imgData into its respective position on the big output spritesheet here, using the given x and y coordinates")
 	 });
 }
