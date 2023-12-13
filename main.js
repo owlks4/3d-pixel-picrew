@@ -5,7 +5,7 @@ import './style.css';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 let container, clock;
-let camera, scene, renderer, ctx2d;
+let camera, scene, renderer, mixer;
 
 const REND_WIDTH = 128;
 const REND_HEIGHT = 128;
@@ -14,10 +14,20 @@ const api = { state: 'Walking' };
 
 const tabsDomElement = document.getElementById("tabs");
 
-document.getElementById("tempButton").onclick = () => {rotateFigureYawBy(22.5)};
+let outputSpriteSheetData = {}; // see the following lines:
+									//An object representing the image, with the following properties:
+									//	width - The width of the image
+									//	height - The height of the image
+									//	data - An array or TypedArray with the image data
+									//	depth - A number indicating the color depth (only 8 and 16 are supported now). Defaults to 8.
+									//	channels - Number of channels, including alpha (1, 2, 3 and 4 are supported). Defaults to 4.
 
+document.getElementById("tempButton").onclick = () => {renderToSpriteSheet()};
+
+//set up html events
 document.getElementById("leftButton").onclick = () => {rotateFigureYawBy(-22.5)};
 document.getElementById("rightButton").onclick = () => {rotateFigureYawBy(22.5)};
+document.getElementById("animationChooser").onchange = () => {alert("In the future, this will begin playing the selected animation")};
 
 class SlotData {
     constructor(name){
@@ -134,15 +144,49 @@ function deg2Rad(deg){
 }
 
 function rotateFigureYawBy(yawChange){
-	console.log(scene.rotation);
 	scene.rotation.y += (deg2Rad(yawChange));
+}
+
+function renderToSpriteSheet(){
+	let w;
+	let h;
+	let requiredDataLength;
+
+	console.log("TODO: Calculate required width and height based on all the frames we're including, and number of bytes for the big output spritesheet's image data here")
+
+	outputSpriteSheetData = {
+		width: w,
+		height: h,
+		data: new Uint8Array(requiredDataLength),
+		depth: 8,
+		channels: 4
+	}
+
+	//then for each animation
+		//for each direction it could be facing
+			//for each frame in the animation
+				//render it to canvas and then:
+				writeCurrentCanvasFrameIntoSpriteSheetAtCoordinates(0,0)
+				//may also want to record the data relating to the animation timings and position of its constituent sprites within the spriteset into a json format string as we go.
+
+	console.log(outputSpriteSheetData.data);
 }
 
 function writeCurrentCanvasFrameIntoSpriteSheetAtCoordinates (topLeftX,topLeftY){	
 	renderer.domElement.toBlob(async (blob) => {
 		let arr = new Uint8Array(await blob.arrayBuffer());
 		let imgData = decode(arr)
+		transplantImgDataIntoImage(imgData,outputSpriteSheetData.data,topLeftX,topLeftY);
 		console.log(imgData);
 		console.log("write imgData into its respective position on the big output spritesheet here, using the given x and y coordinates")
 	 });
+}
+
+function transplantImgDataIntoImage(src,dest,destX,destY){
+	console.log(dest);
+	for (let y = 0; y < src.height; y++){
+		for (let x = 0; x < src.width; x++){
+			dest[((destY + y) * dest.width) + destX + x] = src[(y * src.width) + x];
+		}
+	}
 }

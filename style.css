@@ -111,6 +111,9 @@ main {
   width:80%;
   height:100%;
   margin:auto;
+  background-color: grey;
+  padding: 1em 0.8em 1em 0;
+  border-radius: 1em;
 }
 
 .menu {
@@ -146,13 +149,15 @@ main {
   width: 80vh !important;   /* This intentionally uses vh so that it's in the same units as the height */
   height: 80vh !important;
   border-radius: 2em;
-  padding: 0 0.5em 0 1em;
+  margin: 0 0.5em 0 1em;
 }
 
 .directionalButton {
   position: absolute;
-  bottom: 5%; 
+  bottom: 5%;
   font-weight: bold;
   font-size:1.5em;
+  line-height:1.25em;
   cursor:pointer;
+  text-align: center;
 }
