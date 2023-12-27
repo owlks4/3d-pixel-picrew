@@ -5,14 +5,24 @@ import './style.css';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 let container, clock;
-let camera, scene, renderer, mixer;
+let camera, scene, renderer;
 
 const REND_WIDTH = 128;
 const REND_HEIGHT = 128;
 
-const api = { state: 'Walking' };
-
 const tabsDomElement = document.getElementById("tabs");
+const animationChooserDomElement = document.getElementById("animationChooser");
+
+const animations = ["Idle","Walking","Running"];
+
+for (let i = 0; i < animations.length; i++){
+	let newElement = document.createElement("option");
+	newElement.id = animations[i] + "Option";
+	newElement.value = animations[i];
+	newElement.innerText = animations[i];
+	animationChooserDomElement.appendChild(newElement);
+}
+
 
 let outputSpriteSheetData = {}; // see the following lines:
 									//An object representing the image, with the following properties:
@@ -27,18 +37,42 @@ document.getElementById("tempButton").onclick = () => {renderToSpriteSheet()};
 //set up html events
 document.getElementById("leftButton").onclick = () => {rotateFigureYawBy(-22.5)};
 document.getElementById("rightButton").onclick = () => {rotateFigureYawBy(22.5)};
-document.getElementById("animationChooser").onchange = () => {alert("In the future, this will begin playing the selected animation")};
+document.getElementById("animationChooser").onchange = () => {playAnimation(animationChooserDomElement.value)};
+
+function playAnimation(anim){
+	alert("Just so you know, the animations are currently placeholders to make sure that the system is working")
+	Object.keys(Slot).forEach(function(key,index) {
+		Slot[key].playAnimation(anim);
+	});
+}
 
 class SlotData {
     constructor(name){
     	this.name = name;
         this.modelPath = null;
+		this.clips = null;
+		this.mixer = null;
         let newTab = document.createElement("p");
         newTab.setAttribute("class","tab")
         newTab.setAttribute("id",this.name);
         newTab.innerText = this.name;          
         tabsDomElement.appendChild(newTab);
     }
+
+	playAnimation(anim){
+		if (this.clips == null){
+			return;
+		}
+		const clip = THREE.AnimationClip.findByName(this.clips, anim);
+
+		if (clip == null){
+			alert("There is no animation with the name '"+anim+"' in the model.\nIs your capitalisation correct?");
+		}
+
+		this.mixer.stopAllAction();
+		this.mixer.clipAction( clip ).play();
+		console.log("playing animation "+anim);
+	}
 }
 
 let Slot = {
@@ -67,9 +101,9 @@ function spawnModelInSlot (slot, newModelPath){
 		let existing = scene.getObjectByName(slot.name);
         scene.remove(scene.getObjectByName(slot.name)); //remove previous model occupying that slot
 		existing.dispose();
-        console.log("Slot should be cleared and ready for adding");
+        console.log("Slot is now cleared and ready for adding to");
         }
-        
+    
 	console.log("Something that should be done here is go through the meshes in the newly imported model, and change their material to a toon shader")
 
     console.log("Spawning new model in slot: "+slot.name+"...")
@@ -80,7 +114,8 @@ function spawnModelInSlot (slot, newModelPath){
 	loader.load(slot.modelPath, function (gltf) {
 			let model = gltf.scene;
         	model.name = slot.name;
-
+			slot.mixer = new THREE.AnimationMixer(model)
+			slot.clips = gltf.animations;
 			scene.add( model );
 
 			}, undefined, function ( e ) {
@@ -136,7 +171,17 @@ function onWindowResize() {
 function animate() {
 	const dt = clock.getDelta();
 	requestAnimationFrame( animate );
-	renderer.render( scene, camera );
+	
+	//updates the animations of models in the scene
+	Object.keys(Slot).forEach(function(key,index) {
+		let s = Slot[key];
+		if (s.mixer != null){
+			s.mixer.update(dt);
+			}
+		});
+
+	//renders to canvas
+	renderer.render( scene, camera )
 	}
 
 function deg2Rad(deg){
