@@ -13,7 +13,9 @@ const REND_HEIGHT = 128;
 const tabsDomElement = document.getElementById("tabs");
 const animationChooserDomElement = document.getElementById("animationChooser");
 
-const animations = ["Idle","Walking","Running"];
+let currentlySelectedTabDOMElement = null;
+
+const animations = ["Default","Walking","Running"];
 
 for (let i = 0; i < animations.length; i++){
 	let newElement = document.createElement("option");
@@ -23,6 +25,18 @@ for (let i = 0; i < animations.length; i++){
 	animationChooserDomElement.appendChild(newElement);
 }
 
+class ItemInGrid {			//clothing items etc, to appear in the grid that you can choose from.
+	//When the player chooses one, its contents are transposed into the relevant SlotData on the character.
+	constructor (name,path,slot){
+		this.name = name;
+		this.path = "models/gltf/"+path;
+		this.slot = slot;
+		}
+
+	apply(){
+		spawnModelInSlot(slot,path);
+	}
+}
 
 let outputSpriteSheetData = {}; // see the following lines:
 									//An object representing the image, with the following properties:
@@ -46,15 +60,53 @@ function playAnimation(anim){
 	});
 }
 
-class SlotData {
+function selectTab(slot){
+	let grid = document.getElementById("grid");
+	grid.innerHTML = "";
+	for (let i = 0; i < items.length; i++){
+		let item = items[i];
+		if (item.slot == slot){
+			let newElement = document.createElement("div");
+			newElement.id = item.name + "GridButton";
+			
+			console.log(slot.modelPath);
+			console.log(item.path);
+			if (slot.modelPath == item.path){
+				newElement.className = "grid-button unselectable selected-tab";
+			} else {
+				newElement.className = "grid-button unselectable";
+			}
+
+			newElement.setAttribute("onClick",()=>{item.apply()});
+			newElement.innerText = item.name;
+			grid.appendChild(newElement);
+		}
+	}
+}
+
+class SlotData {		//data that occupies a slot on the character (head/face/torso/legs etc)
     constructor(name){
     	this.name = name;
         this.modelPath = null;
 		this.clips = null;
 		this.mixer = null;
         let newTab = document.createElement("p");
-        newTab.setAttribute("class","tab")
-        newTab.setAttribute("id",this.name);
+        newTab.setAttribute("class","tab unselectable")
+        newTab.setAttribute("id",this.name+"Tab");
+		let slot = this;
+		
+		newTab.onclick = ()=>{if (currentlySelectedTabDOMElement != null){
+									currentlySelectedTabDOMElement.className = "tab";
+								}
+								currentlySelectedTabDOMElement = newTab;
+								newTab.className = "tab unselectable selected-tab";
+								selectTab(slot)};
+
+		if (currentlySelectedTabDOMElement == null){
+			currentlySelectedTabDOMElement = newTab;
+			newTab.className = "tab unselectable selected-tab";
+		}
+
         newTab.innerText = this.name;          
         tabsDomElement.appendChild(newTab);
     }
@@ -89,7 +141,13 @@ let Slot = {
     PROP_RIGHT_HAND:  new SlotData("Right hand",   null)        
     }
 
+const items = [
+		new ItemInGrid("Person","Person.glb",Slot.LEGS),
+
+	];
+
 init();
+currentlySelectedTabDOMElement.onclick();
 animate();
 
 function spawnModelInSlot (slot, newModelPath){
