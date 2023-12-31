@@ -120,6 +120,7 @@ main {
   width:100%;
   height: 80vh;
   font-weight: bold;
+  position:relative;
 }
 
 #tabs {
@@ -168,17 +169,20 @@ main {
 
 #grid {
   display: flex;
+  position: relative;
   padding: 1em;
+  margin: 1em 2.5%;
+  background-color: black;
 }
 
 .grid-button {
   background-color: rgb(61, 61, 61);
   position:relative;
+  display:block;
   min-width: 6em;
   min-height: 6em;
-  border-radius: 1em;
+  border-radius: 0.25em;
   text-align: center;
-  vertical-align: middle;
   cursor: pointer;
 }
 
