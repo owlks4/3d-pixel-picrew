@@ -78,7 +78,7 @@ function selectTab(slot){
 			}
 
 			newElement.setAttribute("onClick",()=>{item.apply()});
-			newElement.innerText = item.name;
+			newElement.innerHTML = "<p class=grid-button-text>"+item.name+"</p>";
 			grid.appendChild(newElement);
 		}
 	}
@@ -136,6 +136,8 @@ let Slot = {
     NECK:   new SlotData("Neck",    null),
     FACE:   new SlotData("Face",   	null),
     HAIR:   new SlotData("Hair",    null),
+	HAIR_2: new SlotData("Hair 2", null),
+	FRINGE: new SlotData("Fringe", null),
     HAT:   	new SlotData("Hat",    	null),
     PROP_LEFT_HAND:   new SlotData("Left hand",     null),
     PROP_RIGHT_HAND:  new SlotData("Right hand",   null)        

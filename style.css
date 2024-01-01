@@ -184,6 +184,13 @@ main {
   border-radius: 0.25em;
   text-align: center;
   cursor: pointer;
+  display: grid;
+  align-items: center;
+}
+
+.grid-button-text {
+  margin:0;
+  font-size: 1.5em;
 }
 
 .selected-tab {
