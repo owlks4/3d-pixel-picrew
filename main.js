@@ -14,6 +14,7 @@ const tabsDomElement = document.getElementById("tabs");
 const animationChooserDomElement = document.getElementById("animationChooser");
 
 let currentlySelectedTabDOMElement = null;
+let currentlySelectedSlot = "";
 
 const animations = ["Default","Walking","Running"];
 
@@ -34,7 +35,8 @@ class ItemInGrid {			//clothing items etc, to appear in the grid that you can ch
 		}
 
 	apply(){
-		spawnModelInSlot(slot,path);
+		console.log("!")
+		spawnModelInSlot(this.slot,this.path);
 	}
 }
 
@@ -53,6 +55,13 @@ document.getElementById("leftButton").onclick = () => {rotateFigureYawBy(-22.5)}
 document.getElementById("rightButton").onclick = () => {rotateFigureYawBy(22.5)};
 document.getElementById("animationChooser").onchange = () => {playAnimation(animationChooserDomElement.value)};
 
+let colorPicker = document.getElementById("color-picker");
+colorPicker.oninput = () => {
+	slotColours[currentlySelectedSlot.name] = colorPicker.value;
+	changeColorOfMeshesInScene(scene.getObjectByName(currentlySelectedSlot.name),colorPicker.value)
+	console.log(renderer.info);
+};
+
 function playAnimation(anim){
 	alert("Just so you know, the animations are currently placeholders to make sure that the system is working")
 	Object.keys(Slot).forEach(function(key,index) {
@@ -63,6 +72,7 @@ function playAnimation(anim){
 function selectTab(slot){
 	let grid = document.getElementById("grid");
 	grid.innerHTML = "";
+
 	for (let i = 0; i < items.length; i++){
 		let item = items[i];
 		if (item.slot == slot){
@@ -76,12 +86,13 @@ function selectTab(slot){
 			} else {
 				newElement.className = "grid-button unselectable";
 			}
-
-			newElement.setAttribute("onClick",()=>{item.apply()});
+			newElement.onclick = ()=>{console.log("?"); item.apply()};
 			newElement.innerHTML = "<p class=grid-button-text>"+item.name+"</p>";
 			grid.appendChild(newElement);
 		}
 	}
+	currentlySelectedSlot = slot;
+	colorPicker.value = slotColours[slot.name];
 }
 
 class SlotData {		//data that occupies a slot on the character (head/face/torso/legs etc)
@@ -143,9 +154,14 @@ let Slot = {
     PROP_RIGHT_HAND:  new SlotData("Right hand",   null)        
     }
 
+let slotColours = {};
+
+Object.keys(Slot).forEach(slot => {
+	slotColours[Slot[slot].name] = "#ff0000"
+});
+
 const items = [
 		new ItemInGrid("Person","Person.glb",Slot.LEGS),
-
 	];
 
 init();
@@ -160,7 +176,12 @@ function spawnModelInSlot (slot, newModelPath){
         console.log("Removing existing item in slot: "+slot.name + "...");
 		let existing = scene.getObjectByName(slot.name);
         scene.remove(scene.getObjectByName(slot.name)); //remove previous model occupying that slot
-		existing.dispose();
+		console.log(existing)
+		existing.traverse( function( object ) {
+			try{
+				object.dispose(); //I'm not sure that this actually helps the memory management. You'd think it would, but it seems you have to be quite manual and thorough with ThreeJS.
+			} catch {}
+		});
         console.log("Slot is now cleared and ready for adding to");
         }
     
@@ -174,14 +195,29 @@ function spawnModelInSlot (slot, newModelPath){
 	loader.load(slot.modelPath, function (gltf) {
 			let model = gltf.scene;
         	model.name = slot.name;
+			changeColorOfMeshesInScene(model,slotColours[slot.name])
 			slot.mixer = new THREE.AnimationMixer(model)
 			slot.clips = gltf.animations;
 			scene.add( model );
-
 			}, undefined, function ( e ) {
 				console.error( e );
 			} );
       }
+
+	function changeColorOfMeshesInScene(scene,newColor){
+		let color = new THREE.Color(newColor);
+		scene.traverse( function( object ) {
+			if (object.isMesh) {
+				if (Array.isArray(object.material)){
+					object.material.forEach(mat => {
+						mat.color = color;
+					});
+				} else {
+					object.material.color = color;
+				}
+			};
+		} );
+	}
 
 function init() {
 
