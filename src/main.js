@@ -3,7 +3,6 @@ import { decode, encode } from 'fast-png';
 import './style.css';
 import GIF from "gif.js";
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import './gif.worker.js';
 
 let container, clock;
 let camera, scene, renderer;
@@ -138,7 +137,7 @@ class SlotData {		//data that occupies a slot on the character (head/face/torso/
 		const clip = THREE.AnimationClip.findByName(this.clips, anim);
 
 		if (clip == null){
-			alert("There is no animation with the name '"+anim+"' in the model.\nIs your capitalisation correct?");
+			console.log("There is no animation with the name '"+anim+"' in the model.\nIs your capitalisation correct?");
 		} else {
 			this.mixer.stopAllAction();
 			this.mixer.clipAction( clip ).play();
@@ -291,12 +290,15 @@ function animate() {
 	requestAnimationFrame( animate );
 	
 	if (dt >= FRAME_INTERVAL){
-		lastFrameOccurredAt = curTime;
-		updateAnimationMixers(dt)
-		//renders to canvas
-		renderer.render( scene, camera )
+		forceRenderToCanvas(curTime, dt);
 		}
 	}
+
+function forceRenderToCanvas(curTime, dt){
+	lastFrameOccurredAt = curTime;
+	updateAnimationMixers(dt)
+	renderer.render( scene, camera )
+}
 
 function deg2Rad(deg){
 	return deg * Math.PI/180;
@@ -304,6 +306,7 @@ function deg2Rad(deg){
 
 function rotateFigureYawBy(yawChange){
 	scene.rotation.y += (deg2Rad(yawChange));
+	forceRenderToCanvas(clock.getElapsedTime(), clock.getElapsedTime() - lastFrameOccurredAt);
 }
 
 async function renderToGifs(){
