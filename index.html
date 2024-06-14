@@ -9,12 +9,15 @@
   <body>
     <main id="main">
       <div id="three" style="position: relative;">
-          <div id="leftButton" class="unselectable directionalButton" style="left: 15%">Rotate<br/>left</div>
+          <button type="button" id="render-button" class="unselectable directionalButton">
+            Render
+          </button>
+          <button type="button" id="leftButton" class="unselectable directionalButton" style="left: 15%">Rotate<br/>left</button>
           <div id="animationTitle" class="unselectable directionalButton" style="left: 33.33%; width: 33.33%; bottom: 10%; cursor: default;">Animation demo:</div>
           <div>
             <select name="animationChooser" id="animationChooser" class="unselectable directionalButton" style="left: 33.33%; width: 33.33%; bottom: 4%;" id="animationChooser"></select>
           </div>
-          <div id="rightButton" class="unselectable directionalButton" style="right:15%">Rotate<br/>right</div>
+          <button type="button" id="rightButton" class="unselectable directionalButton" style="right:15%">Rotate<br/>right</button>
       </div>
       <div id="menu" class="menu">
         <div id="tabs">
@@ -23,7 +26,6 @@
         <input type="color" id="color-picker" class="unselectable">
       </div>      
     </main>
-    <div id="tempButton">Temp button</div>
     <script type="module" src="/main.js"></script>
   </body>
 </html>

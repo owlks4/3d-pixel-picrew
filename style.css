@@ -159,6 +159,16 @@ main {
   border-radius: 0.5em;
 }
 
+#render-button{
+  height:2em;
+  vertical-align: middle;
+  padding-top:0.25em;
+  left: 50%;
+  top: 2.5%;
+  transform: translate(-50%,0);
+  color:rgb(255, 241, 204);
+}
+
 .directionalButton {
   position: absolute;
   bottom: 5%;

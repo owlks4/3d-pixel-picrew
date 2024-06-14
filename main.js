@@ -1,14 +1,20 @@
 import * as THREE from 'three';
 import { decode, encode } from 'fast-png';
 import './style.css';
-
+import GIF from "gif.js";
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import './gif.worker.js';
 
 let container, clock;
 let camera, scene, renderer;
 
 const REND_WIDTH = 128;
 const REND_HEIGHT = 128;
+
+const FRAME_INTERVAL = 1/10; // 10fps
+let lastFrameOccurredAt = 0;
+
+const NUMBER_OF_ROTATION_STOPS = 16
 
 const tabsDomElement = document.getElementById("tabs");
 const animationChooserDomElement = document.getElementById("animationChooser");
@@ -48,12 +54,15 @@ let outputSpriteSheetData = {}; // see the following lines:
 									//	depth - A number indicating the color depth (only 8 and 16 are supported now). Defaults to 8.
 									//	channels - Number of channels, including alpha (1, 2, 3 and 4 are supported). Defaults to 4.
 
-document.getElementById("tempButton").onclick = () => {renderToSpriteSheet()};
+document.getElementById("render-button").onclick = () => { renderToGifs() };
 
 //set up html events
-document.getElementById("leftButton").onclick = () => {rotateFigureYawBy(-22.5)};
-document.getElementById("rightButton").onclick = () => {rotateFigureYawBy(22.5)};
-document.getElementById("animationChooser").onchange = () => {playAnimation(animationChooserDomElement.value)};
+document.getElementById("leftButton").onclick = () => {rotateFigureYawBy(-360/NUMBER_OF_ROTATION_STOPS)};
+document.getElementById("rightButton").onclick = () => {rotateFigureYawBy(360/NUMBER_OF_ROTATION_STOPS)};
+document.getElementById("animationChooser").onchange = () => {
+	alert("Just so you know, the animations are currently placeholders to make sure that the system is working");
+	playAnimation(animationChooserDomElement.value)
+};
 
 let colorPicker = document.getElementById("color-picker");
 colorPicker.oninput = () => {
@@ -63,7 +72,6 @@ colorPicker.oninput = () => {
 };
 
 function playAnimation(anim){
-	alert("Just so you know, the animations are currently placeholders to make sure that the system is working")
 	Object.keys(Slot).forEach(function(key,index) {
 		Slot[key].playAnimation(anim);
 	});
@@ -130,28 +138,28 @@ class SlotData {		//data that occupies a slot on the character (head/face/torso/
 
 		if (clip == null){
 			alert("There is no animation with the name '"+anim+"' in the model.\nIs your capitalisation correct?");
+		} else {
+			this.mixer.stopAllAction();
+			this.mixer.clipAction( clip ).play();
+			console.log("playing animation "+anim);
 		}
-
-		this.mixer.stopAllAction();
-		this.mixer.clipAction( clip ).play();
-		console.log("playing animation "+anim);
 	}
 }
 
 let Slot = {
-    SHOES:  new SlotData("Shoes",   null),
-    SOCKS:  new SlotData("Socks",   null),
-    LEGS:   new SlotData("Legs",    null),
-    TORSO:  new SlotData("Torso",   null),
-    JACKET: new SlotData("Jacket",  null),
-    NECK:   new SlotData("Neck",    null),
-    FACE:   new SlotData("Face",   	null),
-    HAIR:   new SlotData("Hair",    null),
+    SHOES:  new SlotData("Shoes", null),
+    SOCKS:  new SlotData("Socks", null),
+    LEGS:   new SlotData("Legs", null),
+    TORSO:  new SlotData("Torso", null),
+    JACKET: new SlotData("Jacket", null),
+    NECK:   new SlotData("Neck", null),
+    FACE:   new SlotData("Face", null),
+    HAIR:   new SlotData("Hair", null),
 	HAIR_2: new SlotData("Hair 2", null),
 	FRINGE: new SlotData("Fringe", null),
-    HAT:   	new SlotData("Hat",    	null),
-    PROP_LEFT_HAND:   new SlotData("Left hand",     null),
-    PROP_RIGHT_HAND:  new SlotData("Right hand",   null)        
+    HAT:   	new SlotData("Hat", null),
+    PROP_LEFT_HAND:   new SlotData("Left hand", null),
+    PROP_RIGHT_HAND:  new SlotData("Right hand", null)        
     }
 
 let slotColours = {};
@@ -264,20 +272,28 @@ function onWindowResize() {
 	camera.updateProjectionMatrix();
 	}
 
-function animate() {
-	const dt = clock.getDelta();
-	requestAnimationFrame( animate );
-	
-	//updates the animations of models in the scene
+function updateAnimationMixers(dt){
+	//updates the animations of models in the scene according to a certain amount of time having passed
 	Object.keys(Slot).forEach(function(key,index) {
 		let s = Slot[key];
 		if (s.mixer != null){
 			s.mixer.update(dt);
 			}
 		});
+}
 
-	//renders to canvas
-	renderer.render( scene, camera )
+function animate() {
+	const curTime = clock.getElapsedTime();
+	const dt = curTime - lastFrameOccurredAt;
+
+	requestAnimationFrame( animate );
+	
+	if (dt >= FRAME_INTERVAL){
+		lastFrameOccurredAt = curTime;
+		updateAnimationMixers(dt)
+		//renders to canvas
+		renderer.render( scene, camera )
+		}
 	}
 
 function deg2Rad(deg){
@@ -286,6 +302,57 @@ function deg2Rad(deg){
 
 function rotateFigureYawBy(yawChange){
 	scene.rotation.y += (deg2Rad(yawChange));
+}
+
+async function renderToGifs(){
+
+	for (let a = 0; a < animations.length; a++){
+		let animationName = animations[a];
+		console.log("Beginning render for animation: "+animationName)
+
+		//let animationDuration = getLongestDurationOfAnimationAcrossAnyCurrentlyEquippedOutfit();		
+		alert("need to instate the above duration-finding method properly")
+
+		let animationDuration = 5; //TEMP
+
+		for (let i = 0; i < NUMBER_OF_ROTATION_STOPS; i++){ // and for each direction the model can face
+
+			let deg = (i/NUMBER_OF_ROTATION_STOPS) * 360;
+
+			scene.rotation.y = deg2Rad(deg);
+
+			console.log("...at angle "+deg+"...");
+
+			var gif = new GIF({
+				width: REND_WIDTH,
+				height: REND_HEIGHT,
+				workers: 2,
+				quality: 1,
+				repeat: 0,
+				dither: false
+			  });
+	
+			playAnimation(animationName)
+			
+			let time = 0;
+
+			while (time < animationDuration) {
+				//console.log("Rendering frame at time "+time)
+				updateAnimationMixers(FRAME_INTERVAL);
+				renderer.render( scene, camera );
+				gif.addFrame(renderer.domElement, {copy: true, delay: FRAME_INTERVAL * 1000});
+				time += FRAME_INTERVAL;
+			}
+
+			gif.on('finished', function(blob) {
+				window.open(URL.createObjectURL(blob));
+			  });
+	
+			gif.render();
+		}
+	}
+
+	alert("Gifs will be renderered in the background by workers and presented to you in due course.")
 }
 
 function renderToSpriteSheet(){
