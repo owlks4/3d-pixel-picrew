@@ -3,6 +3,7 @@ import { decode, encode } from 'fast-png';
 import './style.css';
 import GIF from "gif.js";
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import JSZip from 'jszip';
 
 let container, clock, camera, scene, renderer;
 
@@ -330,6 +331,9 @@ function getLongestDurationOfAnimationAcrossAnyCurrentlyEquippedClothingItem(ani
 }
 
 async function renderToGifs(){
+	var zip = new JSZip();
+	var number_of_gifs_being_created = 0;
+	var number_of_gifs_completed = 0;
 
 	for (let a = 0; a < animations.length; a++){
 		let animationName = animations[a];
@@ -347,6 +351,8 @@ async function renderToGifs(){
 		for (let i = 0; i < NUMBER_OF_ROTATION_STOPS; i++){ // and for each direction the model can face
 			let deg = (i/NUMBER_OF_ROTATION_STOPS) * 360;
 			scene.rotation.y = deg2Rad(deg);
+
+			number_of_gifs_being_created++;
 
 			var gif = new GIF({
 				width: REND_WIDTH,
@@ -370,15 +376,22 @@ async function renderToGifs(){
 				time += FRAME_INTERVAL;
 			}
 
-			gif.on('finished', function(blob) {
-				window.open(URL.createObjectURL(blob));
+			gif.on('finished', async function(blob) {
+				number_of_gifs_completed++;
+				zip.file(animationName + "_angle" + i +".gif", blob);
+				if (number_of_gifs_completed >= number_of_gifs_being_created){ //and if this is the last gif to be completed:
+					var anchorTag = document.createElement("a")
+                    anchorTag.download = "pixel_characters_gif_export.zip";
+                    anchorTag.href = window.URL.createObjectURL(await zip.generateAsync({ type: "blob" }));
+					anchorTag.click();
+				}
 			  });
 	
 			gif.render();
 		}
 	}
 
-	alert("Gifs will be renderered in the background by workers and presented to you in due course.")
+	alert("The GIFs will be rendered in the background by workers and presented to you in a zip file in due course - hopefully in just a few moments.")
 }
 
 function renderToSpriteSheet(){
