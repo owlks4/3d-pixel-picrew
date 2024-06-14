@@ -4,15 +4,16 @@ import './style.css';
 import GIF from "gif.js";
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-let container, clock;
-let camera, scene, renderer;
+let container, clock, camera, scene, renderer;
 
 const REND_WIDTH = 128;
 const REND_HEIGHT = 128;
 
 let FRAME_INTERVAL = 1/12; 
 let lastFrameOccurredAt = 0;
-document.getElementById("fps-input").onchange = (e) => {FRAME_INTERVAL = 1 / e.target.value};
+const fpsInputElement = document.getElementById("fps-input")
+fpsInputElement.onchange = (e) => {FRAME_INTERVAL = 1 / e.target.value};
+fpsInputElement.onchange({"target":fpsInputElement});
 
 const NUMBER_OF_ROTATION_STOPS = 16
 
@@ -61,7 +62,7 @@ document.getElementById("leftButton").onclick = () => {rotateFigureYawBy(-360/NU
 document.getElementById("rightButton").onclick = () => {rotateFigureYawBy(360/NUMBER_OF_ROTATION_STOPS)};
 document.getElementById("animationChooser").onchange = () => {
 	alert("Just so you know, the animations are currently placeholders to make sure that the system is working");
-	playAnimation(animationChooserDomElement.value)
+	playAnimation(animationChooserDomElement.value, false)
 };
 
 let colorPicker = document.getElementById("color-picker");
@@ -71,9 +72,9 @@ colorPicker.oninput = () => {
 	console.log(renderer.info);
 };
 
-function playAnimation(anim){
-	Object.keys(Slot).forEach(function(key,index) {
-		Slot[key].playAnimation(anim);
+function playAnimation(anim, suppressWarnings){
+	Object.keys(Slot).forEach(function(key) {
+		Slot[key].playAnimation(anim, suppressWarnings);
 	});
 }
 
@@ -130,14 +131,20 @@ class SlotData {		//data that occupies a slot on the character (head/face/torso/
         tabsDomElement.appendChild(newTab);
     }
 
-	playAnimation(anim){
+	getAnim(anim){
 		if (this.clips == null){
-			return;
+			return null;
 		}
-		const clip = THREE.AnimationClip.findByName(this.clips, anim);
+		return THREE.AnimationClip.findByName(this.clips, anim);
+	}
+
+	playAnimation(anim, suppressWarnings){
+		const clip = this.getAnim(anim);
 
 		if (clip == null){
-			console.log("There is no animation with the name '"+anim+"' in the model.\nIs your capitalisation correct?");
+			if (!suppressWarnings){
+				console.log("There is no animation with the name '"+anim+"' in the model.\nIs your capitalisation correct?");
+			}
 		} else {
 			this.mixer.stopAllAction();
 			this.mixer.clipAction( clip ).play();
@@ -309,24 +316,37 @@ function rotateFigureYawBy(yawChange){
 	forceRenderToCanvas(clock.getElapsedTime(), clock.getElapsedTime() - lastFrameOccurredAt);
 }
 
+function getLongestDurationOfAnimationAcrossAnyCurrentlyEquippedClothingItem(animationName){
+	let duration = -1;
+
+	Object.keys(Slot).forEach(function(key) {
+		let anim = Slot[key].getAnim(animationName);
+		if (anim != null && anim.duration > duration){
+			duration = anim.duration;
+		}
+	});
+
+	return duration;
+}
+
 async function renderToGifs(){
 
 	for (let a = 0; a < animations.length; a++){
 		let animationName = animations[a];
 		console.log("Beginning render for animation: "+animationName)
 
-		//let animationDuration = getLongestDurationOfAnimationAcrossAnyCurrentlyEquippedOutfit();		
-		alert("need to instate the above duration-finding method properly")
+		let animationDuration = getLongestDurationOfAnimationAcrossAnyCurrentlyEquippedClothingItem(animationName);		
 
-		let animationDuration = 5; //TEMP
+		if (animationDuration == -1){
+			console.log("Halting attempt to render a gif for "+animationName+": an animation with that name seemingly couldn't be found in any slot (if there had been one, we would've picked up a duration, even a zero duration, to replace the default of -1... but we didn't.)")
+			continue;
+		}
+
+		console.log("Rendering animation at "+NUMBER_OF_ROTATION_STOPS+" different yaw angles...")
 
 		for (let i = 0; i < NUMBER_OF_ROTATION_STOPS; i++){ // and for each direction the model can face
-
 			let deg = (i/NUMBER_OF_ROTATION_STOPS) * 360;
-
 			scene.rotation.y = deg2Rad(deg);
-
-			console.log("...at angle "+deg+"...");
 
 			var gif = new GIF({
 				width: REND_WIDTH,
@@ -338,11 +358,11 @@ async function renderToGifs(){
 				transparent: '#000'
 			  });
 	
-			playAnimation(animationName)
+			playAnimation(animationName, true)
 			
 			let time = 0;
-
-			while (time < animationDuration) {
+			
+			while (time <= animationDuration) {
 				//console.log("Rendering frame at time "+time)
 				updateAnimationMixers(FRAME_INTERVAL);
 				renderer.render( scene, camera );
