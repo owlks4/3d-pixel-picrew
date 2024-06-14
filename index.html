@@ -8,10 +8,13 @@
   </head>
   <body>
     <main id="main">
-      <div id="three" style="position: relative;">
-          <button type="button" id="render-button" class="unselectable directionalButton">
-            Render
-          </button>
+      <div id="three" style="position: relative;">          
+          <div id="render-button-container" class="unselectable directionalButton">
+            <button id="render-button" type="button">
+              Render
+            </button>
+            @ <input type="number" id="fps-input" min="1" max="60" step="1" value="12"> fps
+          </div>
           <button type="button" id="leftButton" class="unselectable directionalButton" style="left: 15%">Rotate<br/>left</button>
           <div id="animationTitle" class="unselectable directionalButton" style="left: 33.33%; width: 33.33%; bottom: 10%; cursor: default;">Animation demo:</div>
           <div>

@@ -11,8 +11,9 @@ let camera, scene, renderer;
 const REND_WIDTH = 128;
 const REND_HEIGHT = 128;
 
-const FRAME_INTERVAL = 1/10; // 10fps
+let FRAME_INTERVAL = 1/12; 
 let lastFrameOccurredAt = 0;
+document.getElementById("fps-input").onchange = (e) => {FRAME_INTERVAL = 1 / e.target.value};
 
 const NUMBER_OF_ROTATION_STOPS = 16
 
@@ -239,7 +240,7 @@ function init() {
 	camera.lookAt( 0, 0.75, 0 );
 
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color(0x000000, 0);
+	scene.background = null;
 	scene.fog = new THREE.Fog( 0xe0e0e0, 20, 100 );
 
 	clock = new THREE.Clock();
@@ -258,7 +259,8 @@ function init() {
         
 	spawnModelInSlot(Slot.LEGS,'models/gltf/Person.glb');
 
-	renderer = new THREE.WebGLRenderer({alpha: true, preserveDrawingBuffer: true});  
+	renderer = new THREE.WebGLRenderer({alpha: true, preserveDrawingBuffer: true});
+	renderer.setClearColor( 0x000000, 0 ); 
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( REND_WIDTH, REND_HEIGHT );
     renderer.domElement.id = "rend";
@@ -327,9 +329,10 @@ async function renderToGifs(){
 				width: REND_WIDTH,
 				height: REND_HEIGHT,
 				workers: 2,
-				quality: 1,
+				quality: 2,  //1 is best, but 2 will cut the render time nearly in half, without really reducing the visual fidelity.
 				repeat: 0,
-				dither: false
+				dither: false,
+				transparent: '#000'
 			  });
 	
 			playAnimation(animationName)

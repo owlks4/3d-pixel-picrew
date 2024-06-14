@@ -159,7 +159,7 @@ main {
   border-radius: 0.5em;
 }
 
-#render-button{
+#render-button-container{
   height:2em;
   vertical-align: middle;
   padding-top:0.25em;
@@ -167,6 +167,18 @@ main {
   top: 2.5%;
   transform: translate(-50%,0);
   color:rgb(255, 241, 204);
+  cursor:default;
+}
+
+#fps-input {
+  font-size:1em;
+  width:2.2em;
+  height:1.5em;
+  text-align:center;
+}
+
+#render-button {
+  font-weight:bold;
 }
 
 .directionalButton {
