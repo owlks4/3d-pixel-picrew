@@ -166,6 +166,11 @@ const items = [
 
 if (window.innerWidth < window.innerHeight){ //changes UI to mobile variant if necessary
 	document.getElementById("main").style = "flex-direction:column; margin:0.5em 0; width:100%; border:unset;";
+	document.getElementById("menu").style = "border-top:2px solid black;"
+	document.getElementById("title").style = "margin-top:0.5em;"
+} else {
+	document.getElementById("three").style = "margin-left: 2em; margin-right: 1em; border-radius:1em;";
+	
 }
 
 let slotSelector = document.getElementById("slot-type-header");
