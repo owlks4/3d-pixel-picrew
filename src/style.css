@@ -45,6 +45,7 @@ h1 {
   font-size: 2.5em;
   line-height: 1;
   margin: 1em auto 0.4em auto;
+  text-align:center;
 }
 
 #app {
@@ -244,4 +245,9 @@ main {
   text-align: center;
   padding: 0;
   cursor:pointer;
+}
+
+#slot-type-header-mobile {
+  font-size: 2em;
+  text-align:center;
 }

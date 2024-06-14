@@ -18,6 +18,7 @@ fpsInputElement.oninput = (e) => {
 		FRAME_INTERVAL = 1 / e.target.value
 	}
 };
+
 fpsInputElement.oninput({"target":fpsInputElement});
 
 const NUMBER_OF_ROTATION_STOPS = 16
@@ -185,6 +186,23 @@ Object.keys(Slot).forEach(slot => {
 const items = [
 		new ItemInGrid("Person","Person.glb",Slot.LEGS),
 	];
+
+if (window.innerWidth < window.innerHeight){ //changes UI to mobile variant if necessary
+	document.getElementById("main").style = "flex-direction:column; margin:0.5em 0; width:100%; border:unset;";
+	document.getElementById("slot-type-header").style = "display:none";
+	let mobileSlotSelector = document.getElementById("slot-type-header-mobile");
+	Object.keys(Slot).forEach(key => {
+		let slot = Slot[key];
+		let newOption = document.createElement("option");		
+		newOption.value = slot.name;
+		newOption.innerText = slot.name;
+		newOption.onclick = (e) => {selectTab(slot)};
+		mobileSlotSelector.appendChild(newOption);
+	})
+} else {
+	document.getElementById("slot-type-header-mobile").style = "display:none";
+}
+	
 
 init();
 currentlySelectedTabDOMElement.onclick();
