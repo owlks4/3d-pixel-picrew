@@ -130,32 +130,6 @@ main {
   flex-direction:column;
 }
 
-#tabs {
-  width: 20em;
-  height: 48em;
-  display: flex;
-  justify-content: start;
-  flex-direction: column;
-  vertical-align: top;
-  text-align: center;
-  padding: 0 1em 0.75em 1em;
-  overflow-x: hidden;
-  overflow-y: scroll;
-}
-
-.tab {
-  width:100%;
-  box-sizing: border-box;
-  padding: 0.25em 1em;
-  font-size:1.2em;
-  text-align: center;
-  border-radius: 0.2em;
-  background-color: rgb(21, 21, 21);
-  cursor: pointer;
-  margin: 0.75em 0 0 0;
-  white-space: nowrap;
-}
-
 #three{
   position:relative;
   width:100%;
@@ -175,10 +149,11 @@ main {
   vertical-align: middle;
   padding-top:0.25em;
   left: 50%;
-  top: 2.5%;
+  top: 0;
   transform: translate(-50%,0);
   color:rgb(255, 241, 204);
   cursor:default;
+  white-space:nowrap;
 }
 
 #fps-input {
@@ -230,10 +205,6 @@ main {
   font-size: 1.5em;
 }
 
-.selected-tab {
-  background-color:rgb(187, 187, 0);
-}
-
 #color-picker {
   width: calc(100% - 2em);
   height: 20%;
@@ -247,7 +218,15 @@ main {
   cursor:pointer;
 }
 
-#slot-type-header-mobile {
+#slot-type-header {
   font-size: 2em;
   text-align:center;
+  font-weight:bold;
+  margin-top:0.5em;
+  height:2em;
+  padding: 0 0.5em;
+}
+
+.selected-tab {
+  background-color:rgb(187, 187, 0);
 }

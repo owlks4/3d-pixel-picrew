@@ -23,10 +23,8 @@ fpsInputElement.oninput({"target":fpsInputElement});
 
 const NUMBER_OF_ROTATION_STOPS = 16
 
-const tabsDomElement = document.getElementById("tabs");
 const animationChooserDomElement = document.getElementById("animationChooser");
 
-let currentlySelectedTabDOMElement = null;
 let currentlySelectedSlot = "";
 
 const animations = ["Default","Walking","Running"];
@@ -88,8 +86,6 @@ function selectTab(slot){
 	let grid = document.getElementById("grid");
 	grid.innerHTML = "";
 
-	document.getElementById("slot-type-header").innerText = slot.name;
-
 	for (let i = 0; i < items.length; i++){
 		let item = items[i];
 		if (item.slot == slot){
@@ -118,25 +114,6 @@ class SlotData {		//data that occupies a slot on the character (head/face/torso/
         this.modelPath = null;
 		this.clips = null;
 		this.mixer = null;
-        let newTab = document.createElement("p");
-        newTab.setAttribute("class","tab unselectable")
-        newTab.setAttribute("id",this.name+"Tab");
-		let slot = this;
-		
-		newTab.onclick = ()=>{if (currentlySelectedTabDOMElement != null){
-									currentlySelectedTabDOMElement.className = "tab";
-								}
-								currentlySelectedTabDOMElement = newTab;
-								newTab.className = "tab unselectable selected-tab";
-								selectTab(slot)};
-
-		if (currentlySelectedTabDOMElement == null){
-			currentlySelectedTabDOMElement = newTab;
-			newTab.className = "tab unselectable selected-tab";
-		}
-
-        newTab.innerText = this.name;          
-        tabsDomElement.appendChild(newTab);
     }
 
 	getAnim(anim){
@@ -189,23 +166,20 @@ const items = [
 
 if (window.innerWidth < window.innerHeight){ //changes UI to mobile variant if necessary
 	document.getElementById("main").style = "flex-direction:column; margin:0.5em 0; width:100%; border:unset;";
-	document.getElementById("slot-type-header").style = "display:none";
-	let mobileSlotSelector = document.getElementById("slot-type-header-mobile");
-	Object.keys(Slot).forEach(key => {
-		let slot = Slot[key];
-		let newOption = document.createElement("option");		
-		newOption.value = slot.name;
-		newOption.innerText = slot.name;
-		newOption.onclick = (e) => {selectTab(slot)};
-		mobileSlotSelector.appendChild(newOption);
-	})
-} else {
-	document.getElementById("slot-type-header-mobile").style = "display:none";
 }
-	
 
+let slotSelector = document.getElementById("slot-type-header");
+Object.keys(Slot).forEach(key => {
+	let slot = Slot[key];
+	let newOption = document.createElement("option");		
+	newOption.value = slot.name;
+	newOption.innerHTML = slot.name;
+	newOption.onclick = (e) => {selectTab(slot)};
+	slotSelector.appendChild(newOption);
+})
+	
 init();
-currentlySelectedTabDOMElement.onclick();
+selectTab(Slot.HAT)
 animate();
 
 function spawnModelInSlot (slot, newModelPath){
