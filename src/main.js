@@ -13,8 +13,12 @@ const REND_HEIGHT = 128;
 let FRAME_INTERVAL = 1/12; 
 let lastFrameOccurredAt = 0;
 const fpsInputElement = document.getElementById("fps-input")
-fpsInputElement.onchange = (e) => {FRAME_INTERVAL = 1 / e.target.value};
-fpsInputElement.onchange({"target":fpsInputElement});
+fpsInputElement.oninput = (e) => {
+	if (e.target.value > 0 && e.target.value <= 60) {
+		FRAME_INTERVAL = 1 / e.target.value
+	}
+};
+fpsInputElement.oninput({"target":fpsInputElement});
 
 const NUMBER_OF_ROTATION_STOPS = 16
 
@@ -82,6 +86,8 @@ function playAnimation(anim, suppressWarnings){
 function selectTab(slot){
 	let grid = document.getElementById("grid");
 	grid.innerHTML = "";
+
+	document.getElementById("slot-type-header").innerText = slot.name;
 
 	for (let i = 0; i < items.length; i++){
 		let item = items[i];
@@ -155,17 +161,17 @@ class SlotData {		//data that occupies a slot on the character (head/face/torso/
 }
 
 let Slot = {
-    SHOES:  new SlotData("Shoes", null),
-    SOCKS:  new SlotData("Socks", null),
-    LEGS:   new SlotData("Legs", null),
-    TORSO:  new SlotData("Torso", null),
-    JACKET: new SlotData("Jacket", null),
-    NECK:   new SlotData("Neck", null),
-    FACE:   new SlotData("Face", null),
-    HAIR:   new SlotData("Hair", null),
+	HAT:   	new SlotData("Hat", null),
+	HAIR:   new SlotData("Hair", null),
 	HAIR_2: new SlotData("Hair 2", null),
 	FRINGE: new SlotData("Fringe", null),
-    HAT:   	new SlotData("Hat", null),
+	FACE:   new SlotData("Face", null),
+	NECK:   new SlotData("Neck", null),
+	JACKET: new SlotData("Jacket", null),
+	TORSO:  new SlotData("Torso", null),
+	LEGS:   new SlotData("Legs", null),
+	SOCKS:  new SlotData("Socks", null),
+    SHOES:  new SlotData("Shoes", null),
     PROP_LEFT_HAND:   new SlotData("Left hand", null),
     PROP_RIGHT_HAND:  new SlotData("Right hand", null)        
     }
