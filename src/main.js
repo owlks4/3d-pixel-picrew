@@ -82,7 +82,21 @@ function playAnimation(anim, suppressWarnings){
 	});
 }
 
-function selectTab(slot){
+function selectSlotByName(slotName){
+	let slotKeys = Object.keys(Slot);
+
+	for (let i = 0; i < slotKeys.length; i++){
+		let s = Slot[slotKeys[i]];
+		if (s.name == slotName){
+			selectSlot(s);
+			return;
+		}
+	}
+	console.log("Couldn't find slot with name "+slotName + " for selection")
+	return;
+}
+
+function selectSlot(slot){
 	let grid = document.getElementById("grid");
 	grid.innerHTML = "";
 
@@ -95,7 +109,7 @@ function selectTab(slot){
 			console.log(slot.modelPath);
 			console.log(item.path);
 			if (slot.modelPath == item.path){
-				newElement.className = "grid-button unselectable selected-tab";
+				newElement.className = "grid-button unselectable selected-grid-item";
 			} else {
 				newElement.className = "grid-button unselectable";
 			}
@@ -165,12 +179,12 @@ const items = [
 	];
 
 if (window.innerWidth < window.innerHeight){ //changes UI to mobile variant if necessary
+	document.body.style = "font-size:0.6em;";
 	document.getElementById("main").style = "flex-direction:column; margin:0.5em 0; width:100%; border:unset;";
 	document.getElementById("menu").style = "border-top:2px solid black;"
-	document.getElementById("title").style = "margin-top:0.5em;"
+	document.getElementById("title").style = "margin:0.5em 0.1em 0.1em 0.1em;"
 } else {
 	document.getElementById("three").style = "margin-left: 2em; margin-right: 1em; border-radius:1em;";
-	
 }
 
 let slotSelector = document.getElementById("slot-type-header");
@@ -179,12 +193,14 @@ Object.keys(Slot).forEach(key => {
 	let newOption = document.createElement("option");		
 	newOption.value = slot.name;
 	newOption.innerHTML = slot.name;
-	newOption.onclick = (e) => {selectTab(slot)};
 	slotSelector.appendChild(newOption);
 })
+slotSelector.onchange = (e) => {
+	selectSlotByName(e.target.options[e.target.selectedIndex].value)
+}
 	
 init();
-selectTab(Slot.HAT)
+selectSlot(Slot.HAT)
 animate();
 
 function spawnModelInSlot (slot, newModelPath){

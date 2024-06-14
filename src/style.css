@@ -228,6 +228,6 @@ main {
   padding: 0 0.5em;
 }
 
-.selected-tab {
+.selected-grid-item {
   background-color:rgb(187, 187, 0);
 }
